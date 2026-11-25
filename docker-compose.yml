@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # 1. MOTOR DE BASE DE DATOS MARIADB
+  mariadb:
+    image: mariadb:10.11
+    container_name: iterbus-mariadb
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=Admin123!
+      - MYSQL_DATABASE=EmpresaX_DB
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+  # 2. BACKEND SPRING BOOT (Opcional si corres por Docker)
+  backend:
+    build: .
+    container_name: iterbus-backend
+    restart: always
+    depends_on:
+      - mariadb
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/EmpresaX_DB
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=Admin123!
+      - JWT_SECRET=${JWT_SECRET:-}
+    ports:
+      - "8080:8080"
+    volumes:
+      - jwt_data:/root/.iterbus
+
+volumes:
+  mariadb_data:
+  jwt_data:
